@@ -11,40 +11,33 @@ load_dotenv()
 app = FastAPI()
 
 origins = [
-    "http://127.0.0.1:5500",  # Frontend origin
-    "http://localhost:5500"   # Optional: also allow localhost
+    "http://127.0.0.1:5500",  
+    "http://localhost:5500"  
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          # Allows these domains to access the backend
+    allow_origins=origins,        
     allow_credentials=True,
-    allow_methods=["*"],            # Allow all HTTP methods (POST, GET, etc.)
-    allow_headers=["*"],            # Allow all headers
+    allow_methods=["*"],            
+    allow_headers=["*"],        
 )
 
 
-# Load API keys from .env or hardcode for testing
+# Load API keys from .env 
 RETEll_API_KEY = os.getenv("RETELL_API_KEY", "your_retell_api_key")
 VAPI_API_KEY = os.getenv("VAPI_API_KEY", "your_vapi_api_key")
 llm_id=os.getenv("llm_id","your_llm_id")
 
 
-# ----------- Standard Input Models --------------
+
 
 class AgentRequest(BaseModel):
     provider: str  # 'retell' or 'vapi'
     voice: str
-     # Only used for Retell
 
 
-class VapiCallRequest(BaseModel):
-    assistant_id: str
-    phone_number: str
-    webhook_url: str = None
-
-
-# ----------- API Endpoints --------------
+# API Endpoints
 
 @app.post("/create-agent")
 def create_agent(request: AgentRequest):
@@ -56,12 +49,10 @@ def create_agent(request: AgentRequest):
         raise HTTPException(status_code=400, detail="Unsupported provider")
 
 
-@app.post("/make-call")
-def make_call(request: VapiCallRequest):
-    return initiate_vapi_call(request)
 
 
-# ----------- Provider Functions --------------
+
+#  Provider Functions 
 
 def create_retell_agent(request: AgentRequest):
     headers = {
@@ -101,21 +92,3 @@ def create_vapi_agent(request: AgentRequest):
         raise HTTPException(status_code=res.status_code, detail=res.text)
 
 
-def initiate_vapi_call(request: VapiCallRequest):
-    headers = {
-        "Authorization": f"Bearer {VAPI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "assistant_id": request.assistant_id,
-        "phone_number": request.phone_number,
-        "webhook_url": request.webhook_url or "https://your-default-webhook.com"
-    }
-
-    res = requests.post("https://api.vapi.ai/call", json=payload, headers=headers)
-
-    if res.status_code in [200, 201]:
-        return res.json()
-    else:
-        raise HTTPException(status_code=res.status_code, detail=res.text)

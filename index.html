@@ -37,18 +37,18 @@
       const providerSelect = document.getElementById("provider");
       const voiceSelect = document.getElementById("voice");
 
-      // Predefined voices for each provider
+      //  voices for each provider
       const voices = {
         retell: ["play-Andrew", "11labs-Dorothy", "play-Steve", "openai-Nova"],
         vapi: ["jennifer-playht", "melissa-playht", "burt-11labs", "nova-openai"]
       };
 
-      // Change the voice options based on the selected provider
+      // Change  voice options based on the selected provider
       providerSelect.addEventListener("change", () => {
         const selectedProvider = providerSelect.value;
         const voiceOptions = voices[selectedProvider] || [];
 
-        // Clear and repopulate voice selector
+        // voice selector
         voiceSelect.innerHTML = `<option value="">Select a voice</option>`;
         voiceOptions.forEach(voice => {
           const option = document.createElement("option");
@@ -58,7 +58,7 @@
         });
       });
 
-      // Submit the form and send a POST request
+      //  POST request
       document.getElementById("agent-form").addEventListener("submit", async function (e) {
         e.preventDefault();
         const provider = providerSelect.value;
