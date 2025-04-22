@@ -48,7 +48,7 @@ Ensure you have the following installed:
 4. Run the FastAPI server:
    ```bash
    uvicorn main:app --reload
-
+ ```
 
   
 
