@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Creator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Create AI Agent</h2>
+
+    <form id="agent-form" class="space-y-4">
+      <div>
+        <label for="provider" class="block text-sm font-medium text-gray-700">Provider</label>
+        <select id="provider" name="provider" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+          <option value="">Select provider</option>
+          <option value="retell">Retell</option>
+          <option value="vapi">VAPI</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="voice" class="block text-sm font-medium text-gray-700">Voice</label>
+        <select id="voice" name="voice" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+          <option value="">Select a voice</option>
+        </select>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Create Agent</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const providerSelect = document.getElementById("provider");
+      const voiceSelect = document.getElementById("voice");
+
+      // Predefined voices for each provider
+      const voices = {
+        retell: ["play-Andrew", "11labs-Dorothy", "play-Steve", "openai-Nova"],
+        vapi: ["jennifer-playht", "melissa-playht", "burt-11labs", "nova-openai"]
+      };
+
+      // Change the voice options based on the selected provider
+      providerSelect.addEventListener("change", () => {
+        const selectedProvider = providerSelect.value;
+        const voiceOptions = voices[selectedProvider] || [];
+
+        // Clear and repopulate voice selector
+        voiceSelect.innerHTML = `<option value="">Select a voice</option>`;
+        voiceOptions.forEach(voice => {
+          const option = document.createElement("option");
+          option.value = voice;
+          option.textContent = voice;
+          voiceSelect.appendChild(option);
+        });
+      });
+
+      // Submit the form and send a POST request
+      document.getElementById("agent-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const provider = providerSelect.value;
+        const voice = voiceSelect.value;
+
+        if (!provider || !voice) {
+          alert("Please select both provider and voice.");
+          return;
+        }
+
+        const payload = {
+          provider,
+          voice,
+        };
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/create-agent", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            alert("Agent created successfully:\n" + JSON.stringify(data, null, 2));
+          } else {
+            alert("Failed to create agent:\n" + data.detail);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred while creating the agent.");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
